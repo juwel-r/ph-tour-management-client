@@ -8,9 +8,9 @@ interface IProps {
 //I can user ReactElement instead ReactNode but React ReactElement only support JSX element but ReactNode allow anything like text, html element, component
 const CommonLayout = ({ children }: IProps) => {
   return (
-    <div>
+    <div className="min-h-scree flex flex-col">
       <Navbar />
-      {children}
+      <div className="grow">{children}</div>
       <Footer />
     </div>
   );
