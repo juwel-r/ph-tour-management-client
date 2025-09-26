@@ -3,6 +3,7 @@ import App from "../App";
 import About from "../pages/About";
 import Login from "@/pages/Login";
 import Register from "@/pages/Registration";
+import Verify from "@/pages/Verify";
 
 const router = createBrowserRouter([
   // {
@@ -21,12 +22,17 @@ const router = createBrowserRouter([
     ],
   },
   {
-    Component:Login,
-    path:"/login"
-  },{
-    Component:Register,
-    path:"/registration"
-  }
+    Component: Login,
+    path: "/login",
+  },
+  {
+    Component: Register,
+    path: "/register",
+  },
+  {
+    Component: Verify,
+    path: "/verify",
+  },
 ]);
 
 export default router;
