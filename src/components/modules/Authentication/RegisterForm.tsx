@@ -19,19 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Password from "@/components/ui/PasswordField";
 import { useRegisterMutation } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
+import { registerSchema } from "@/utils/zodSchema";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, { error: "Name is too short." }).max(50),
-    email: z.email({ error: "Invalid email address." }),
-    password: z.string().min(6, { error: "Password too short" }),
-    confirmPassword: z.string().min(6, { error: "Password too short" }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Confirm password not matched.",
-    path: ["confirmPassword"],
-  });
-  //used refine() to validate confirm password
 
 export function RegisterForm({
   className,
