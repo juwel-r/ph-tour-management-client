@@ -46,6 +46,7 @@ export function LoginForm({
       const result = await login(credential).unwrap();
       toast.success(result.message);
       console.log(result);
+      navigate("/")
     } catch (error: any) {
       console.log(error);
 

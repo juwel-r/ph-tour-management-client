@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,9 +22,9 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { otpSchema } from "@/utils/zodSchema";
 import type z from "zod";
@@ -33,6 +34,7 @@ import {
   useVerifyOTPMutation,
 } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function Verify() {
   const location = useLocation();
@@ -40,14 +42,8 @@ export default function Verify() {
   const [confirm, setConfirm] = useState(false);
   const [sendOTP] = useSendOTPMutation();
   const [verifyOTP] = useVerifyOTPMutation();
-
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (!email) {
-  //     navigate("/");
-  //   }
-  // }, [email, navigate]);
+  const [timer, setTimer] = useState(5);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
@@ -56,8 +52,21 @@ export default function Verify() {
     },
   });
 
-  const onSubmit = async (value: z.infer<typeof otpSchema>) => {
+  const handleSendOtp = async () => {
     const toastId = toast.loading("OTP Sending...");
+    try {
+      const result = await sendOTP({ email: email }).unwrap();
+      console.log(result);
+      toast.success(result.message, { id: toastId });
+      setConfirm(true);
+    } catch (error:any) {
+      console.log(error);
+      toast.error(error.data.message, { id: toastId });
+    }
+  };
+
+  const handleSubmitOtp = async (value: z.infer<typeof otpSchema>) => {
+    const toastId = toast.loading("Verifying email...");
     const data = {
       email,
       otp: value.pin,
@@ -65,26 +74,41 @@ export default function Verify() {
     try {
       const result = await verifyOTP(data).unwrap();
       console.log(result);
-      toast.success(result.message, {id:toastId});
-      setConfirm(true);
+      toast.success(result.message, { id: toastId });
+      navigate("/login")
     } catch (error) {
       console.log(error);
-      toast.error("OTP sending failed.",{id:toastId});
+      toast.error("OTP sending failed.", { id: toastId });
     }
   };
 
-  const handleSendOtp = async () => {
+  const handleResendOtp = async () => {
+    setTimer(5);
     const toastId = toast.loading("OTP Sending...");
     try {
       const result = await sendOTP({ email: email }).unwrap();
       console.log(result);
-      toast.success(result.message, {id:toastId});
-      setConfirm(true);
+      toast.success(result.message, { id: toastId });
     } catch (error) {
       console.log(error);
-      toast.error("OTP sending failed.", {id:toastId});
+      toast.error("OTP sending failed.", { id: toastId });
     }
   };
+
+  useEffect(() => {
+    if (!email) {
+      navigate("/");
+    }
+  }, [email, navigate]);
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      if (email && confirm) {
+        setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, [email, confirm]);
 
   return (
     <div className="grid place-content-center h-screen">
@@ -98,7 +122,7 @@ export default function Verify() {
             <Form {...form}>
               <form
                 id="otp-form"
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(handleSubmitOtp)}
                 className="space-y-6"
               >
                 <FormField
@@ -130,8 +154,20 @@ export default function Verify() {
                           </InputOTPGroup>
                         </InputOTP>
                       </FormControl>
-                      <FormDescription className="sr-only">
-                        Please enter the OTP sent to email.
+                      <FormDescription>
+                        <Button
+                          onClick={handleResendOtp}
+                          type="button"
+                          variant="link"
+                          disabled={timer !== 0}
+                          className={cn("p-0 m-0 pr-2", {
+                            "cursor-pointer": timer === 0,
+                            "text-gray-500": timer !== 0,
+                          })}
+                        >
+                          Resend OTP:
+                        </Button>
+                        {String(timer).padStart(2, "0")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -151,7 +187,7 @@ export default function Verify() {
           <CardHeader>
             <CardTitle className="text-xl">Send OTP to email</CardTitle>
             <CardDescription>
-              We will send you an OTP at <br /> {email}
+              We will send you an OTP to verify email at <br /> {email}
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex justify-end">
