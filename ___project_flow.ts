@@ -14,4 +14,11 @@ create axios axiosInstance
 create axiosBaseQuery
 create api for each features
 }
+
+create register and login page with zod, zodResolver and hook form
+
+ ** To get tokens in cookie, 
+        set axios "withCredentials:true" in instance, 
+        set backend cors:credentials:true, 
+        set cookie options"secure:true" (even in development mode)
  */

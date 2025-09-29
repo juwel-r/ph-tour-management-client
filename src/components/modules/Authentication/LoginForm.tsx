@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
-import Github from "@/assets/icons/Github";
 import {
   Form,
   FormControl,
@@ -20,6 +19,8 @@ import Password from "@/components/ui/PasswordField";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/redux/features/auth/auth.api";
 import { loginSchema } from "@/utils/zodSchema";
+import Google from "@/assets/icons/Google";
+import env from "@/config/env.config";
 
 export function LoginForm({
   className,
@@ -120,9 +121,9 @@ export function LoginForm({
             Or continue with
           </span>
         </div>
-        <Button variant="outline" className="w-full">
-          <Github />
-          Login with GitHub
+        <Button  onClick={()=>window.open(`${env.baseUrl}/auth/google`)} variant="outline" className="w-full">
+          <Google />
+          Login with Google
         </Button>
       </div>
       <div className="text-center text-sm">
