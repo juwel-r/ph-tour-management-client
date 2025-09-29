@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import Github from "@/assets/icons/Github";
+import Google from "@/assets/icons/Google";
 import {
   Form,
   FormControl,
@@ -19,19 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Password from "@/components/ui/PasswordField";
 import { useRegisterMutation } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
-
-const registerSchema = z
-  .object({
-    name: z.string().min(2, { error: "Name is too short." }).max(50),
-    email: z.email({ error: "Invalid email address." }),
-    password: z.string().min(6, { error: "Password too short" }),
-    confirmPassword: z.string().min(6, { error: "Password too short" }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Confirm password not matched.",
-    path: ["confirmPassword"],
-  });
-  //used refine() to validate confirm password
+import { registerSchema } from "@/utils/zodSchema";
+import env from "@/config/env.config";
 
 export function RegisterForm({
   className,
@@ -42,8 +31,7 @@ export function RegisterForm({
    Need to explore more react hook form "Raw/Original"
    */
 
-   const [register]=useRegisterMutation()
-
+  const [register] = useRegisterMutation();
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -59,27 +47,25 @@ export function RegisterForm({
   // };
   //different type used here-> infered from zod types
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    const userInfo ={
-      name:data.name,
-      email:data.email,
-      password:data.password
-    }
-    console.log({userInfo});
-    
+    const userInfo = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    };
+    console.log({ userInfo });
+
     try {
       const result = await register(userInfo).unwrap();
       toast.success(result.message);
-      
-    } catch (error:any) {
+    } catch (error: any) {
       console.log(error);
-      toast.error(error.data.message)
+      toast.error(error.data.message || error.data);
     }
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create an account</h1>
-
       </div>
       <div className="grid gap-6">
         <Form {...form}>
@@ -171,9 +157,9 @@ export function RegisterForm({
             Or continue with
           </span>
         </div>
-        <Button variant="outline" className="w-full">
-          <Github />
-          Login with GitHub
+        <Button onClick={()=>window.open(`${env.baseUrl}/auth/google`)} variant="outline" className="w-full">
+          <Google/>
+          Login with Google
         </Button>
       </div>
       <div className="text-center text-sm">

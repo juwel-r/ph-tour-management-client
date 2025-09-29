@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
-import Github from "@/assets/icons/Github";
 import {
   Form,
   FormControl,
@@ -19,28 +18,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Password from "@/components/ui/PasswordField";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/redux/features/auth/auth.api";
-
-const registerSchema = z.object({
-  email: z.email({ error: "Invalid email address." }),
-  password: z.string().min(6, { error: "Password too short" }),
-});
+import { loginSchema } from "@/utils/zodSchema";
+import Google from "@/assets/icons/Google";
+import env from "@/config/env.config";
 
 export function LoginForm({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
+  const navigate = useNavigate();
   const [login] = useLoginMutation();
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const navigate = useNavigate();
-
-  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const credential = {
       email: data.email,
       password: data.password,
@@ -49,12 +46,15 @@ export function LoginForm({
     try {
       const result = await login(credential).unwrap();
       toast.success(result.message);
+      console.log(result);
+      navigate("/")
     } catch (error: any) {
-      console.log(error.data.message);
+      console.log(error);
+
       if (error.data.message == "User email is not verified.") {
-        navigate("/verify", {state:credential.email});
+        navigate("/verify", { state: credential.email });
       }
-      toast.error(error.data.message);
+      toast.error(error.data.message || error.data);
     }
   };
 
@@ -121,9 +121,9 @@ export function LoginForm({
             Or continue with
           </span>
         </div>
-        <Button variant="outline" className="w-full">
-          <Github />
-          Login with GitHub
+        <Button  onClick={()=>window.open(`${env.baseUrl}/auth/google`)} variant="outline" className="w-full">
+          <Google />
+          Login with Google
         </Button>
       </div>
       <div className="text-center text-sm">

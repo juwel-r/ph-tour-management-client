@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link, NavLink } from "react-router";
 import Logo from "../../assets/icons/Logo";
 import { Button } from "../ui/button";
@@ -9,6 +10,13 @@ import {
 } from "../ui/navigation-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ThemeToggler } from "./ThemeToggler";
+import {
+  authApi,
+  useLogoutMutation,
+  useUserInfoQuery,
+} from "@/redux/features/auth/auth.api";
+import { toast } from "sonner";
+import { useAppDispatch } from "@/redux/hook";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -17,6 +25,25 @@ const navigationLinks = [
 ];
 
 export default function Navbar() {
+  const { data } = useUserInfoQuery(undefined);
+  const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch()
+
+  const handleLogout = async () => {
+    try {
+      const result = await logout(null).unwrap();
+      console.log(result);
+      dispatch(authApi.util.resetApiState())
+      //provide tags and invalidate tags will not work here cause after logout invalidate tag will execute but then no token in cookies so request will rejected so invalidate tags can not remove provided tag so catch data will be sill stay, so used "util" it will remove whole catch of auth api's data
+      toast.success(result.message)
+    } catch (err:any) {
+      console.log(err);
+      toast.error(err.data.message || err.data)
+    }
+  };
+
+  console.log(data);
+
   return (
     <header className="border-b px-4 container mx-auto">
       <div className="flex h-16 items-center justify-between gap-4">
@@ -97,9 +124,19 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggler />
 
-          <Button asChild className="text-sm">
-            <Link to="/login">Login</Link>
-          </Button>
+          {data ? (
+            <Button
+              onClick={handleLogout}
+              variant={"outline"}
+              className="text-sm text-primary"
+            >
+              Logout
+            </Button>
+          ) : (
+            <Button asChild className="text-sm">
+              <Link to="/login">Login</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

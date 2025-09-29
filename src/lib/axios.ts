@@ -2,7 +2,8 @@ import env from '@/config/env.config';
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL:env.baseUrl
+  baseURL:env.baseUrl,
+  withCredentials:true
 })
 
 // Add a request interceptor
