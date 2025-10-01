@@ -45,7 +45,7 @@ export interface Auth {
   providerId: string;
 }
 
-export interface IUser2 {
+export interface IUser {
   name: string;
   email: string;
   address?: string;
