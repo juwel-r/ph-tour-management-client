@@ -1,5 +1,8 @@
+import { Link } from "react-router";
+
 export default function Logo() {
   return (
+    <Link className="w-fit" to='/'>
     <svg
       width="40"
       height="40"
@@ -18,5 +21,6 @@ export default function Logo() {
         fill="#FF4D00"
       ></path>
     </svg>
+    </Link>
   );
 }

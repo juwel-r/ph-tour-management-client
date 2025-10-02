@@ -24,13 +24,6 @@ export interface IVerifyOtp {
   otp: string;
 }
 
-export interface IResponse<T> {
-  statusCode: number;
-  success: boolean;
-  message: string;
-  data: T;
-}
-
 export type TRole = "SUPER_ADMIN" | "ADMIN" | "USER" | "GUID";
 
 export interface AuthProvider {
@@ -45,7 +38,7 @@ export interface Auth {
   providerId: string;
 }
 
-export interface IUser2 {
+export interface IUser {
   name: string;
   email: string;
   address?: string;

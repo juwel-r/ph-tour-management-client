@@ -1,9 +1,17 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import App from "../App";
 import About from "../pages/About";
 import Login from "@/pages/Login";
 import Register from "@/pages/Registration";
 import Verify from "@/pages/Verify";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { adminSidebarItems } from "./adminSidebarItems";
+import { userSidebarItems } from "./userSidebarItems";
+import { generateRoutes } from "@/utils/generateRoutes";
+import { role } from "@/constants/Role";
+import { checkAuthorization } from "@/utils/checkAuthorization";
+import type { TRole } from "@/types/auth.types";
+import Unauthorize from "@/pages/Unauthorize";
 
 const router = createBrowserRouter([
   // {
@@ -21,6 +29,25 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  {
+    Component: checkAuthorization(DashboardLayout, role.ADMIN as TRole),
+    path: "/admin",
+    children: [
+      { index: true, element: <Navigate to="/admin/analytics" /> },
+      ...generateRoutes(adminSidebarItems),
+    ],
+  },
+
+  {
+    Component: checkAuthorization(DashboardLayout, role.USER as TRole),
+    path: "/user",
+    children: [
+      { index: true, element: <Navigate to="/user/booking" /> },
+      ...generateRoutes(userSidebarItems),
+    ],
+  },
+
   {
     Component: Login,
     path: "/login",
@@ -32,6 +59,10 @@ const router = createBrowserRouter([
   {
     Component: Verify,
     path: "/verify",
+  },
+  {
+    Component: Unauthorize,
+    path: "/unauthorize",
   },
 ]);
 
