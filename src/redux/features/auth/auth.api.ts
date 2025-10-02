@@ -27,7 +27,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    logout: builder.mutation<IResponse<null>, null>({
+    logout: builder.mutation<IResponse<null>, void>({
       query: () => ({
         url: "/auth/logout",
         method: "POST",
@@ -50,7 +50,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    userInfo: builder.query({
+    userInfo: builder.query<IResponse<IUser>, void>({
       query: () => ({
         url: "/user/me",
       }),

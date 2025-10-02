@@ -1,7 +1,12 @@
-import AddTour from "@/pages/admin/AddTour";
-import Analytics from "@/pages/admin/Analytics";
+import AddDivision from "@/pages/admin/division/AddDivision";
+import AddTour from "@/pages/admin/tour/AddTour";
+import AddTourType from "@/pages/admin/tourType/AddTourType";
+// import Analytics from "@/pages/admin/Analytics";
 import type { ISidebarItem } from "@/types";
-import AllUser from "@/pages/admin/AllUser";
+// import AllUser from "@/pages/admin/AllUser";
+import { lazy } from "react";
+
+const Analytics = lazy(() => import("@/pages/admin/Analytics"));
 
 export const adminSidebarItems: ISidebarItem[] = [
   {
@@ -15,26 +20,21 @@ export const adminSidebarItems: ISidebarItem[] = [
     ],
   },
   {
-    title: "User Management",
-    items: [
-      {
-        title: "All User",
-        url: "/admin/all-user",
-        component: AllUser,
-      },
-    ],
-  },
-  {
     title: "Tour Management",
     items: [
       {
-        title: "Add Tour",
-        url: "/admin/add-tour",
-        component: AddTour,
+        title: "Add Tour Type",
+        url: "/admin/add-tour-type",
+        component: AddTourType,
       },
       {
-        title: "Project Structure",
-        url: "#",
+        title: "Add Division",
+        url: "/admin/add-division",
+        component: AddDivision,
+      },
+      {
+        title: "Add Tour",
+        url: "/admin/add-tour",
         component: AddTour,
       },
     ],

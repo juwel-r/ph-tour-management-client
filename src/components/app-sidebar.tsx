@@ -12,14 +12,16 @@ import {
 } from "@/components/ui/sidebar";
 import Logo from "@/assets/icons/Logo";
 import { Link } from "react-router";
-import { adminSidebarItems } from "@/routes/adminSidebarItems";
-
-// This is sample data.
-const data = {
-  navMain: adminSidebarItems
-};
+import { getSidebarItemsByRole } from "@/utils/getSidebarItemsByRole";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import type { TRole } from "@/types/auth.types";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: userData } = useUserInfoQuery();
+  const data = {
+    navMain: getSidebarItemsByRole(userData?.data?.role as TRole),
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>

@@ -17,32 +17,36 @@ import {
 } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/redux/hook";
+import { role } from "@/constants/Role";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "Home", role: "PUBLIC" },
+  { href: "/about", label: "About", role: role.PUBLIC },
+  { href: "/admin", label: "Dashboard", role: role.SUPER_ADMIN },
+  { href: "/admin", label: "Dashboard", role: role.ADMIN },
+  { href: "/user", label: "Dashboard", role: role.USER },
 ];
 
 export default function Navbar() {
-  const { data } = useUserInfoQuery(undefined);
+  const { data: userInfo } = useUserInfoQuery();
   const [logout] = useLogoutMutation();
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
     try {
-      const result = await logout(null).unwrap();
+      const result = await logout().unwrap();
       console.log(result);
-      dispatch(authApi.util.resetApiState())
+      dispatch(authApi.util.resetApiState());
       //provide tags and invalidate tags will not work here cause after logout invalidate tag will execute but then no token in cookies so request will rejected so invalidate tags can not remove provided tag so catch data will be sill stay, so used "util" it will remove whole catch of auth api's data
-      toast.success(result.message)
-    } catch (err:any) {
+      toast.success(result.message);
+    } catch (err: any) {
       console.log(err);
-      toast.error(err.data.message || err.data)
+      toast.error(err.data.message || err.data);
     }
   };
 
-  console.log(data);
+  console.log(userInfo);
 
   return (
     <header className="border-b px-4 container mx-auto">
@@ -88,11 +92,23 @@ export default function Navbar() {
               <NavigationMenu className="max-w-none *:w-full">
                 <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
                   {navigationLinks.map((link, index) => (
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink className="py-1.5">
-                        <Link to={link.href}>{link.label}</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
+                    <>
+                      {link.role === role.PUBLIC && (
+                        <NavigationMenuItem key={index} className="w-full">
+                          <NavigationMenuLink className="py-1.5">
+                            <Link to={link.href}>{link.label}</Link>
+                          </NavigationMenuLink>
+                        </NavigationMenuItem>
+                      )}
+
+                      {link.role === userInfo?.data?.role && (
+                        <NavigationMenuItem key={index} className="w-full">
+                          <NavigationMenuLink className="py-1.5">
+                            <Link to={link.href}>{link.label}</Link>
+                          </NavigationMenuLink>
+                        </NavigationMenuItem>
+                      )}
+                    </>
                   ))}
                 </NavigationMenuList>
               </NavigationMenu>
@@ -107,14 +123,28 @@ export default function Navbar() {
             <NavigationMenu className="max-md:hidden">
               <NavigationMenuList className="gap-2">
                 {navigationLinks.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      asChild
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
-                    >
-                      <NavLink to={link.href}>{link.label}</NavLink>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
+                  <>
+                    {link.role === role.PUBLIC && (
+                      <NavigationMenuItem key={index}>
+                        <NavigationMenuLink
+                          asChild
+                          className="text-muted-foreground hover:text-primary py-1.5 font-medium"
+                        >
+                          <NavLink to={link.href}>{link.label}</NavLink>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    )}
+                    {link.role === userInfo?.data.role && (
+                      <NavigationMenuItem key={index}>
+                        <NavigationMenuLink
+                          asChild
+                          className="text-muted-foreground hover:text-primary py-1.5 font-medium"
+                        >
+                          <NavLink to={link.href}>{link.label}</NavLink>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    )}
+                  </>
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
@@ -124,7 +154,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggler />
 
-          {data ? (
+          {userInfo ? (
             <Button
               onClick={handleLogout}
               variant={"outline"}
