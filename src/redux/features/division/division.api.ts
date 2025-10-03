@@ -16,6 +16,7 @@ const divisionApi = baseApi.injectEndpoints({
         url: "/division",
         method:"GET"
       }),
+      transformResponse:(response)=> response.data,
       providesTags: ["DIVISION"],
     }),
 
