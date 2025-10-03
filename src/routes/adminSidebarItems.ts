@@ -1,5 +1,6 @@
 import AddDivision from "@/pages/admin/division/AddDivision";
-import AddTour from "@/pages/admin/tour/AddTour";
+import { AddTour } from "@/pages/admin/tour/AddTour";
+
 import AddTourType from "@/pages/admin/tourType/AddTourType";
 // import Analytics from "@/pages/admin/Analytics";
 import type { ISidebarItem } from "@/types";

@@ -39,7 +39,7 @@ export default function AddDivision() {
         <h1>Division</h1>
         <AddDivisionModal />
       </div>
-      {isLoading ? (
+      { !data?.data?.length ? (
         <div className="text-2xl text-muted-foreground text-center">
           No data found to show!
         </div>
@@ -50,6 +50,7 @@ export default function AddDivision() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>Photo</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -59,7 +60,8 @@ export default function AddDivision() {
               data.data.map((item:IDivision, index: number) => (
                 <TableRow key={index}>
                   <TableCell className="">{item.name}</TableCell>
-                  <TableCell className="w-full">{item.description}</TableCell>
+                  <TableCell className="mr-auto border-x">{item.description}</TableCell>
+                  <TableCell><img className="max-w-32 h-24 rounded-2xl m-2" src={item?.thumbnail} alt="" /></TableCell>
                   <TableCell>
                     <DeleteConfirmation
                       onConfirm={() => handleDelete(item._id)}

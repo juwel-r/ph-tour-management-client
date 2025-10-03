@@ -1,13 +1,12 @@
 import { baseApi } from "@/redux/baseApi";
-import type { IAddDivision, IDivision, IResponse } from "@/types";
 
 const divisionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    addDivision: builder.mutation<IResponse<IDivision>,IAddDivision>({
-      query: (data) => ({
+    addDivision: builder.mutation({
+      query: (formData) => ({
         url: "/division/create",
         method: "POST",
-        data: data,
+        data: formData,
       }),
       invalidatesTags: ["DIVISION"],
     }),

@@ -17,39 +17,50 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useAddDivisionMutation } from "@/redux/features/division/division.api";
-import type { IAddDivision } from "@/types";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
 export function AddDivisionModal() {
-  const [addDivision] = useAddDivisionMutation();
-  const [image, setImage]= useState(null);
+  const [addDivision, { isLoading }] = useAddDivisionMutation();
+  const [image, setImage] = useState<File | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  // const [uploading, setUploading] = useState(false);
 
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+  });
+
+  const formData = new FormData();
+
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    console.log(data);
     try {
-      const divisionData: IAddDivision = {
-        name: data.name,
-        description: data.description,
-      };
-      const result = await addDivision(divisionData).unwrap();
+      formData.append("data", JSON.stringify(data));
+      formData.append("file", image as File);
+
+      const result = await addDivision(formData).unwrap();
       toast.success(result.message);
       console.log({ result });
+      form.reset();
+      setIsOpen(false);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.data.message || error.data);
       console.log({ error });
+      form.reset();
     }
-    console.log({ data });
   };
-
-  console.log(image);
-  
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>Add Division</Button>
       </DialogTrigger>
@@ -71,7 +82,7 @@ export function AddDivisionModal() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} required />
                   </FormControl>
                 </FormItem>
               )}
@@ -84,21 +95,29 @@ export function AddDivisionModal() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} />
+                    <Textarea {...field} required />
                   </FormControl>
                 </FormItem>
               )}
             />
           </form>
-          <SingleImageUploader onChange={setImage}/>
+          <SingleImageUploader onChange={setImage} />
         </Form>
 
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="add-division" type="submit">
-            Save changes
+          <Button
+            form="add-division"
+            type="submit"
+            disabled={!image || isLoading}
+            className={cn({
+              "opacity-50  cursor-not-allowed": isLoading,
+            })}
+          >
+            {isLoading && <Spinner />}
+            Submit
           </Button>
         </DialogFooter>
       </DialogContent>

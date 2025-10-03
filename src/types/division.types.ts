@@ -8,7 +8,11 @@ export interface IDivision {
   updatedAt: string;
 }
 
-export interface IAddDivision {
+export interface IDivisionFormData {
+  data: IAddDivision;
+  file: File;
+}
+interface IAddDivision {
   name: string;
   description: string;
 }

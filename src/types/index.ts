@@ -9,7 +9,7 @@ export type {
   IUser,
 } from "./auth.types";
 
-export type { IDivision, IAddDivision } from "./division.types";
+export type { IDivision, IDivisionFormData } from "./division.types";
 export type { ITour } from "./tour.types";
 
 export interface IResponse<T> {
