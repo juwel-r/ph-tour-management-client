@@ -1,3 +1,4 @@
+import SingleImageUploader from "@/components/SingleImageUploader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,11 +20,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDivisionMutation } from "@/redux/features/division/division.api";
 import type { IAddDivision } from "@/types";
+import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
 export function AddDivisionModal() {
   const [addDivision] = useAddDivisionMutation();
+  const [image, setImage]= useState(null);
+
   const form = useForm();
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
@@ -41,6 +45,9 @@ export function AddDivisionModal() {
     }
     console.log({ data });
   };
+
+  console.log(image);
+  
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -53,7 +60,7 @@ export function AddDivisionModal() {
 
         <Form {...form}>
           <form
-            id="add-tour-type"
+            id="add-division"
             className="space-y-6"
             onSubmit={form.handleSubmit(onSubmit)}
           >
@@ -83,13 +90,14 @@ export function AddDivisionModal() {
               )}
             />
           </form>
+          <SingleImageUploader onChange={setImage}/>
         </Form>
 
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="add-tour-type" type="submit">
+          <Button form="add-division" type="submit">
             Save changes
           </Button>
         </DialogFooter>
