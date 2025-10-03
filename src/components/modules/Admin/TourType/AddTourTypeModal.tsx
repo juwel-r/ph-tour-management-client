@@ -20,7 +20,7 @@ import { useAddTourTypeMutation } from "@/redux/features/tour/tour.api";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
-export function AddTourModal() {
+export function AddTourTypeModal() {
   const [addTourType]= useAddTourTypeMutation()
   const form = useForm();
   const onSubmit: SubmitHandler<FieldValues> =async (data) => {
@@ -30,14 +30,14 @@ export function AddTourModal() {
     toast.success(result.message)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
-      toast.error(error.data.message || error.message)
+      toast.error(error.data.message || error.data)
       console.log(error);
     }
   };
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Tour Type</Button>
+        <Button>Add Tour Type</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
