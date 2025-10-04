@@ -20,5 +20,20 @@ export const registerSchema = z
 
 //
 export const otpSchema = z.object({
-  pin: z.string().min(6,{ message: "Your one-time password must be 6 characters."}),
+  pin: z
+    .string()
+    .min(6, { message: "Your one-time password must be 6 characters." }),
+});
+
+export const addTourSchema = z.object({
+  title: z.string().min(5, { error: "Title is too short." }),
+  division: z.string().min(1,{ error: "No division selected" }),
+  description: z.string().min(1,{ error: "No division selected" }),
+  startDate: z.date().min(1,{ error: "No division selected" }),
+  endDate: z.date().min(1,{ error: "No division selected" }),
+  tourType: z.string().min(1,{ error: "No division selected" }),
+  costFrom: z.string().min(1,{ error: "Input a positive number." }),
+  maxGuest:z.string().min(1,{ error: "Input a positive number." }),
+  included: z.array(z.object({ value: z.string() })),
+  excluded: z.array(z.object({ value: z.string() })),
 });

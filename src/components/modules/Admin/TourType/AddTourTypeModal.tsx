@@ -16,28 +16,35 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { useAddTourTypeMutation } from "@/redux/features/tour/tour.api";
+import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
-export function AddTourModal() {
-  const [addTourType]= useAddTourTypeMutation()
-  const form = useForm();
-  const onSubmit: SubmitHandler<FieldValues> =async (data) => {
-    
+export function AddTourTypeModal() {
+  const [addTourType, { isLoading }] = useAddTourTypeMutation();
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const form = useForm({defaultValues:{name:""}});
+
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
-      const result = await addTourType({name:data.name}).unwrap();
-    toast.success(result.message)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error:any) {
-      toast.error(error.data.message || error.message)
+      const result = await addTourType({ name: data.name }).unwrap();
+      toast.success(result.message);
+      form.reset()
+      setIsOpen(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.data.message || error.data);
       console.log(error);
     }
   };
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Tour Type</Button>
+        <Button>Add Tour Type</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -50,10 +57,10 @@ export function AddTourModal() {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel>Tour Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <Input required {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -65,7 +72,10 @@ export function AddTourModal() {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="add-tour-type" type="submit">Save changes</Button>
+          <Button form="add-tour-type" type="submit" disabled={isLoading}>
+            {isLoading && <Spinner />}
+            Submit
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
