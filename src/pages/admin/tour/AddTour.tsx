@@ -44,7 +44,7 @@ import { addTourSchema } from "@/utils/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
-import { CalendarIcon, icons, Trash, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash } from "lucide-react";
 import { useState } from "react";
 import {
   useFieldArray,
@@ -54,7 +54,6 @@ import {
 } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
-import { includes } from "zod";
 
 export function AddTour() {
   const { data: divisionData, isLoading: divisionLoading } =
@@ -80,9 +79,7 @@ export function AddTour() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray<
-    z.infer<typeof addTourSchema>
-  >({
+  const { fields, append, remove } = useFieldArray<z.infer<typeof addTourSchema>>({
     control: form.control,
     name: "included",
   });
@@ -111,8 +108,8 @@ export function AddTour() {
       formData.append("data", JSON.stringify(tourData));
       images.forEach((image) => formData.append("files", image as File));
 
-      // const result = await addTour(formData).unwrap();
-      // toast.success(result.message);
+      const result = await addTour(formData).unwrap();
+      toast.success(result.message);
 
       form.reset();
     } catch (error: any) {
