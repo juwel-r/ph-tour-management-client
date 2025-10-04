@@ -29,8 +29,8 @@ export const addTourSchema = z.object({
   title: z.string().min(5, { error: "Title is too short." }),
   division: z.string().min(1,{ error: "No division selected" }),
   description: z.string().min(1,{ error: "No division selected" }),
-  startDate: z.string().min(1,{ error: "No division selected" }),
-  endDate: z.string().min(1,{ error: "No division selected" }),
+  startDate: z.date().min(1,{ error: "No division selected" }),
+  endDate: z.date().min(1,{ error: "No division selected" }),
   tourType: z.string().min(1,{ error: "No division selected" }),
   costFrom: z.string().min(1,{ error: "Input a positive number." }),
 });

@@ -1,4 +1,5 @@
-import SingleImageUploader from "@/components/SingleImageUploader";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import MultipleImageUploader from "@/components/MultipleImageUploader";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -30,27 +31,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import type { FileMetadata } from "@/hooks/use-file-upload";
 import { cn } from "@/lib/utils";
 import { useGetDivisionQuery } from "@/redux/features/division/division.api";
-import { useGetTourTypeQuery } from "@/redux/features/tour/tour.api";
-import { addTourSchema } from "@/utils/zodSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  useAddTourMutation,
+  useGetTourTypeQuery,
+} from "@/redux/features/tour/tour.api";
+
 import { format, formatISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
-import type z from "zod";
+import { toast } from "sonner";
 
 export function AddTour() {
   const { data: divisionData, isLoading: divisionLoading } =
     useGetDivisionQuery(undefined);
   const { data: tourTypeData, isLoading: tourTypeLoading } =
     useGetTourTypeQuery();
-  const [image, setImage] = useState<File | null>(null);
+  const [images, setImages] = useState<(File | FileMetadata)[] | []>([]);
+  const [addTour, { isLoading }] = useAddTourMutation();
 
-  const form = useForm<z.infer<typeof addTourSchema>>({
-    resolver: zodResolver(addTourSchema),
+  const form = useForm({
+    // resolver: zodResolver(addTourSchema),
     defaultValues: {
       title: "",
       division: "",
@@ -58,32 +64,34 @@ export function AddTour() {
       startDate: "",
       endDate: "",
       costFrom: "",
-      description:""
+      description: "",
+      maxGuest: "",
     },
   });
 
-  // const form = useForm({
-  //   defaultValues: {
-  //     title: "",
-  //     division: "",
-  //     tourType: "",
-  //     startDate: "",
-  //     endDate: "",
-  //     costFrom: "",
-  //     description:""
-  //   },
-  // });
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    console.log(data);
+    try {
+      const tourData = {
+        ...data,
+        startDate: formatISO(data.startDate),
+        endDate: formatISO(data.endDate),
+        costFrom: Number(data.costFrom),
+        maxGuest: Number(data.maxGuest),
+      };
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    const tourData = {
-      ...data,
-      startDate: formatISO(data.startDate),
-      endDate: formatISO(data.endDate),
-    };
-    console.log(tourData);
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(tourData));
+      images.forEach((image) => formData.append("files", image as File));
+
+      const result = await addTour(formData).unwrap();
+      toast.success(result.message);
+      console.log(result);
+    } catch (error: any) {
+      toast.error(error?.data?.message || error.data);
+      console.log(error);
+    }
   };
-
-  console.log({ tourTypeData, divisionData });
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -137,7 +145,7 @@ export function AddTour() {
                       <SelectContent>
                         {divisionData?.map(
                           (item: { _id: string; name: string }) => (
-                            <SelectItem value={item._id}>
+                            <SelectItem key={item._id} value={item._id}>
                               {item.name}
                             </SelectItem>
                           )
@@ -168,7 +176,9 @@ export function AddTour() {
                       </FormControl>
                       <SelectContent>
                         {tourTypeData?.map((item) => (
-                          <SelectItem value={item._id}>{item.name}</SelectItem>
+                          <SelectItem key={item._id} value={item._id}>
+                            {item.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -178,7 +188,7 @@ export function AddTour() {
               />
             </div>
 
-            <div className="md:flex gap-5 space-y-5">
+            <div className="md:flex gap-5 sm:space-y-5 md:space-y-0">
               <FormField
                 control={form.control}
                 name="startDate"
@@ -209,7 +219,12 @@ export function AddTour() {
                           mode="single"
                           selected={new Date(field.value)}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate()-1))}
+                          disabled={(date) =>
+                            date <
+                            new Date(
+                              new Date().setDate(new Date().getDate() - 1)
+                            )
+                          }
                           //disabled={(date) => date < new Date()} => jegula ajket date ar theke boro just segula available hobe so.. new Date() ar vitor akta date neya  hoice setar modde date get kore then 1 minus kora hoice
                           captionLayout="dropdown"
                         />
@@ -249,7 +264,12 @@ export function AddTour() {
                           mode="single"
                           selected={new Date(field.value)}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate()-1))}
+                          disabled={(date) =>
+                            date <
+                            new Date(
+                              new Date().setDate(new Date().getDate() - 1)
+                            )
+                          }
                           captionLayout="dropdown"
                         />
                       </PopoverContent>
@@ -260,45 +280,75 @@ export function AddTour() {
               />
             </div>
 
-            {/* Tour Cost */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem className="mb-5">
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tour description"
-                      {...field}
-                      className="h-[200px]"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-5 sm:space-y-5 md:space-y-0">
+              {/* Tour Cost */}
+              <FormField
+                control={form.control}
+                name="costFrom"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Cost</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Tour Cost" {...field} type="number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Tour Cost
-            <FormField
-              control={form.control}
-              name="costFrom"
-              render={({ field }) => (
-                <FormItem className="mb-5">
-                  <FormLabel>Cost</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
+              {/* Max Guest */}
+              <FormField
+                control={form.control}
+                name="maxGuest"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Cost</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Max Guest allowed"
+                        {...field}
+                        type="number"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div>
+              <div className="md:flex gap-5">
+                {/* Tour Description */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="mb-5 flex-1">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Tour description"
+                          {...field}
+                          className="h-[200px]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <MultipleImageUploader onChange={setImages} />
+              </div>
+            </div>
           </form>
         </Form>
-        <SingleImageUploader onChange={setImage} />
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button form="add-tour" type="submit" className="w-full">
+        <Button
+          disabled={!images.length || isLoading}
+          form="add-tour"
+          type="submit"
+          className="w-full"
+        >
+          {isLoading && <Spinner />}
           Submit
         </Button>
       </CardFooter>

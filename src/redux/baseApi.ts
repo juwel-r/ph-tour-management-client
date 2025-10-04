@@ -6,6 +6,6 @@ export const baseApi = createApi({
     baseQuery:axiosBaseQuery(),
     // baseQuery: fetchBaseQuery({baseUrl:env.baseUrl, credentials:"include"}), 
     // // if not used axios then for access cookie use "credentials:include"
-    tagTypes:["USER","TOUR","DIVISION"],
+    tagTypes:["DIVISION", "DIVISION", "TOUR-TYPE", "TOUR"],
     endpoints:()=>({})
 })

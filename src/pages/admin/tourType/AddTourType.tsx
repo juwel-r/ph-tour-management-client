@@ -15,7 +15,7 @@ import {
 import { Trash } from "lucide-react";
 import { AddTourTypeModal } from "../../../components/modules/Admin/TourType/AddTourTypeModal";
 import { DeleteConfirmation } from "@/components/DeleteConfirmation";
-import type { ITour } from "@/types/tour.types";
+import type { ITour } from "@/types/tourType.types";
 import { toast } from "sonner";
 
 export default function AddTourType() {

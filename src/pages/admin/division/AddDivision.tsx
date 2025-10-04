@@ -32,14 +32,14 @@ export default function AddDivision() {
     }
   };
 
-  console.log(data?.data);
+  console.log({data});
   return (
     <div className="w-full max-w-4xl mx-auto px-5 pb-4 border rounded-2xl">
       <div className="flex justify-between my-8 text-xl font-bold">
         <h1>Division</h1>
         <AddDivisionModal />
       </div>
-      { !data?.data?.length ? (
+      { !data?.length ? (
         <div className="text-2xl text-muted-foreground text-center">
           No data found to show!
         </div>
@@ -56,8 +56,8 @@ export default function AddDivision() {
           </TableHeader>
           <TableBody>
             {!isLoading &&
-              data?.data?.length &&
-              data.data.map((item:IDivision, index: number) => (
+              data?.length &&
+              data?.map((item:IDivision, index: number) => (
                 <TableRow key={index}>
                   <TableCell className="">{item.name}</TableCell>
                   <TableCell className="mr-auto border-x">{item.description}</TableCell>
