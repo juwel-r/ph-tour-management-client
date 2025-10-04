@@ -33,4 +33,5 @@ export const addTourSchema = z.object({
   endDate: z.date().min(1,{ error: "No division selected" }),
   tourType: z.string().min(1,{ error: "No division selected" }),
   costFrom: z.string().min(1,{ error: "Input a positive number." }),
+  maxGuest:z.string().min(1,{ error: "Input a positive number." }),
 });

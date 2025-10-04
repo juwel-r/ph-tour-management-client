@@ -40,7 +40,7 @@ const tourApi = baseApi.injectEndpoints({
         method: "POST",
         data: tourData,
       }),
-      invalidatesTags: ["TOUR"],
+      invalidatesTags: ["TOUR", "TOUR-TYPE"],
     }),
   }),
 });

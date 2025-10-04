@@ -39,7 +39,7 @@ export default function MultipleImageUploader({
   }, [files, onChange]);
 
   return (
-    <div className="flex flex-col gap-2 mt-5">
+    <div className="flex flex-col flex-1 gap-2 mt-5">
       {/* Drop area */}
       <div
         onDragEnter={handleDragEnter}
@@ -48,7 +48,7 @@ export default function MultipleImageUploader({
         onDrop={handleDrop}
         data-dragging={isDragging || undefined}
         data-files={files.length > 0 || undefined}
-        className="border-input data-[dragging=true]:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 relative flex min-h-32 flex-col items-center overflow-hidden rounded-xl border border-dashed p-4 transition-colors not-data-[files]:justify-center has-[input:focus]:ring-[3px]"
+        className="border-input data-[dragging=true]:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 relative flex h-[190px] flex-col items-center overflow-hidden rounded-xl border border-dashed p-4 transition-colors not-data-[files]:justify-center has-[input:focus]:ring-[3px]"
       >
         <input
           {...getInputProps()}

@@ -40,12 +40,15 @@ import {
   useAddTourMutation,
   useGetTourTypeQuery,
 } from "@/redux/features/tour/tour.api";
+import { addTourSchema } from "@/utils/zodSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
+import type z from "zod";
 
 export function AddTour() {
   const { data: divisionData, isLoading: divisionLoading } =
@@ -55,22 +58,21 @@ export function AddTour() {
   const [images, setImages] = useState<(File | FileMetadata)[] | []>([]);
   const [addTour, { isLoading }] = useAddTourMutation();
 
-  const form = useForm({
-    // resolver: zodResolver(addTourSchema),
+  const form = useForm<z.infer<typeof addTourSchema>>({
+    resolver: zodResolver(addTourSchema),
     defaultValues: {
       title: "",
       division: "",
       tourType: "",
-      startDate: "",
-      endDate: "",
+      endDate: new Date(),
+      startDate: new Date(),
       costFrom: "",
-      description: "",
       maxGuest: "",
+      description: "",
     },
   });
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log(data);
     try {
       const tourData = {
         ...data,
@@ -86,7 +88,8 @@ export function AddTour() {
 
       const result = await addTour(formData).unwrap();
       toast.success(result.message);
-      console.log(result);
+
+      form.reset()
     } catch (error: any) {
       toast.error(error?.data?.message || error.data);
       console.log(error);
@@ -302,7 +305,7 @@ export function AddTour() {
                 name="maxGuest"
                 render={({ field }) => (
                   <FormItem className="flex-1 w-full">
-                    <FormLabel>Cost</FormLabel>
+                    <FormLabel>Max Guest</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Max Guest allowed"
@@ -328,7 +331,7 @@ export function AddTour() {
                         <Textarea
                           placeholder="Tour description"
                           {...field}
-                          className="h-[200px]"
+                          className="min-h-[190px]"
                         />
                       </FormControl>
                       <FormMessage />
@@ -346,7 +349,7 @@ export function AddTour() {
           disabled={!images.length || isLoading}
           form="add-tour"
           type="submit"
-          className="w-full"
+          className="w-fit ml-auto"
         >
           {isLoading && <Spinner />}
           Submit
