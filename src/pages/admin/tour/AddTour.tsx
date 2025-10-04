@@ -44,11 +44,17 @@ import { addTourSchema } from "@/utils/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, icons, Trash, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
+import {
+  useFieldArray,
+  useForm,
+  type FieldValues,
+  type SubmitHandler,
+} from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
+import { includes } from "zod";
 
 export function AddTour() {
   const { data: divisionData, isLoading: divisionLoading } =
@@ -69,10 +75,25 @@ export function AddTour() {
       costFrom: "",
       maxGuest: "",
       description: "",
+      included: [{ value: "" }],
+      excluded: [{ value: "" }],
     },
   });
 
+  const { fields, append, remove } = useFieldArray<
+    z.infer<typeof addTourSchema>
+  >({
+    control: form.control,
+    name: "included",
+  });
+
+  const { fields:excludedFields, append:excludedAppend, remove:excludedRemove } = useFieldArray<z.infer<typeof addTourSchema>>({
+    control: form.control,
+    name: "excluded",
+  });
+
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    console.log({excludedFields});
     try {
       const tourData = {
         ...data,
@@ -80,16 +101,20 @@ export function AddTour() {
         endDate: formatISO(data.endDate),
         costFrom: Number(data.costFrom),
         maxGuest: Number(data.maxGuest),
+        included: data?.included?.map((obj: { value: string }) => obj.value),
+        excluded: data?.excluded?.map((obj: { value: string }) => obj.value),
       };
+
+      console.log(tourData);
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(tourData));
       images.forEach((image) => formData.append("files", image as File));
 
-      const result = await addTour(formData).unwrap();
-      toast.success(result.message);
+      // const result = await addTour(formData).unwrap();
+      // toast.success(result.message);
 
-      form.reset()
+      form.reset();
     } catch (error: any) {
       toast.error(error?.data?.message || error.data);
       console.log(error);
@@ -318,27 +343,109 @@ export function AddTour() {
                 )}
               />
             </div>
-            <div>
-              <div className="md:flex gap-5">
-                {/* Tour Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="mb-5 flex-1">
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Tour description"
-                          {...field}
-                          className="min-h-[190px]"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <MultipleImageUploader onChange={setImages} />
+
+            <div className="md:flex gap-5">
+              {/* Tour Description */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="mb-5 flex-1">
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Tour description"
+                        {...field}
+                        className="min-h-[190px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <MultipleImageUploader onChange={setImages} />
+            </div>
+
+            <div className="border-t bg-muted"></div>
+
+            {/* === Dynamic Fields === */}
+            {/* Includes Fields */}
+            <div className="border p-4 rounded-2xl">
+              <Button
+                type="button"
+                className="my-4"
+                onClick={() => append({ value: "" })}
+              >
+                Add Includes
+              </Button>
+              <div className="sm:grid lg:grid-cols-3 grid-cols-2 gap-5 space-y-2">
+                {fields.map(
+                  (field: { value: string; id: string }, index: number) => (
+                    <div className="flex gap-2 items-center">
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={`included.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="Includes..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        onClick={() => remove(index)}
+                        type="button"
+                        variant="default"
+                        size="icon"
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Excludes Fields */}
+            <div className="border p-4 rounded-2xl">
+              <Button
+                type="button"
+                className="my-4"
+                onClick={() => excludedAppend({ value: "" })}
+              >
+                Add Excludes
+              </Button>
+              <div className="sm:grid lg:grid-cols-3 grid-cols-2 gap-5 space-y-2">
+                {excludedFields.map(
+                  (field: { value: string; id: string }, index: number) => (
+                    <div className="flex gap-2 items-center">
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={`excluded.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="Excludes..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        onClick={() => excludedRemove(index)}
+                        type="button"
+                        variant="default"
+                        size="icon"
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </form>
