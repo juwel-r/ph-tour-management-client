@@ -13,13 +13,6 @@ export interface IResponse<T> {
   data: T;
 }
 
-export interface IResponseArray<T> {
-  statusCode: number;
-  success: boolean;
-  message: string;
-  data: T[];
-  meta?: Meta;
-}
 
 export interface Meta {
   page: number;

@@ -33,7 +33,13 @@ export const addTourSchema = z.object({
   endDate: z.date().min(1,{ error: "No division selected" }),
   tourType: z.string().min(1,{ error: "No division selected" }),
   costFrom: z.string().min(1,{ error: "Input a positive number." }),
+  minAge: z.string().min(1,{ error: "Input a positive number." }),
   maxGuest:z.string().min(1,{ error: "Input a positive number." }),
   included: z.array(z.object({ value: z.string() })),
   excluded: z.array(z.object({ value: z.string() })),
+  amenities: z.array(z.object({ value: z.string() })),
+  tourPlane: z.array(z.object({ value: z.string() })),
+  location:z.string().min(1,{ error: "Input tour location" }),
+  arrivalLocation:z.string().min(1,{ error: "Input arrival location." }),
+  departureLocation:z.string().min(1,{ error: "Input departure location." }),
 });
