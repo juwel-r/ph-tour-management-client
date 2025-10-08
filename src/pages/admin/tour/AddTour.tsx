@@ -44,7 +44,7 @@ import { addTourSchema } from "@/utils/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
-import { CalendarIcon, Trash } from "lucide-react";
+import { CalendarIcon, icons, Trash, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
   useFieldArray,
@@ -76,6 +76,12 @@ export function AddTour() {
       description: "",
       included: [{ value: "" }],
       excluded: [{ value: "" }],
+      amenities: [{ value: "" }],
+      tourPlane: [{ value: "" }],
+      location: "",
+      arrivalLocation: "",
+      departureLocation: "",
+      minAge: "",
     },
   });
 
@@ -84,13 +90,35 @@ export function AddTour() {
     name: "included",
   });
 
-  const { fields:excludedFields, append:excludedAppend, remove:excludedRemove } = useFieldArray<z.infer<typeof addTourSchema>>({
+  const {
+    fields: excludedFields,
+    append: excludedAppend,
+    remove: excludedRemove,
+  } = useFieldArray<z.infer<typeof addTourSchema>>({
     control: form.control,
     name: "excluded",
   });
 
+  const {
+    fields: amenitiesFields,
+    append: amenitiesAppend,
+    remove: amenitiesRemove,
+  } = useFieldArray<z.infer<typeof addTourSchema>>({
+    control: form.control,
+    name: "amenities",
+  });
+
+  const {
+    fields: tourPlaneFields,
+    append: tourPlaneAppend,
+    remove: tourPlaneRemove,
+  } = useFieldArray<z.infer<typeof addTourSchema>>({
+    control: form.control,
+    name: "tourPlane",
+  });
+
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log({excludedFields});
+    console.log({ excludedFields });
     try {
       const tourData = {
         ...data,
@@ -98,8 +126,11 @@ export function AddTour() {
         endDate: formatISO(data.endDate),
         costFrom: Number(data.costFrom),
         maxGuest: Number(data.maxGuest),
+        minAge: Number(data.minAge),
         included: data?.included?.map((obj: { value: string }) => obj.value),
         excluded: data?.excluded?.map((obj: { value: string }) => obj.value),
+        amenities: data?.amenities?.map((obj: { value: string }) => obj.value),
+        tourPlane: data?.tourPlane?.map((obj: { value: string }) => obj.value),
       };
 
       console.log(tourData);
@@ -112,6 +143,7 @@ export function AddTour() {
       toast.success(result.message);
 
       form.reset();
+      setImages([])
     } catch (error: any) {
       toast.error(error?.data?.message || error.data);
       console.log(error);
@@ -133,7 +165,7 @@ export function AddTour() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-5"
           >
-            {/* Name */}
+            {/* Title */}
             <FormField
               control={form.control}
               name="title"
@@ -148,6 +180,7 @@ export function AddTour() {
               )}
             />
 
+            {/* Dropdown */}
             <div className="md:flex gap-4 sm:space-y-5 md:space-y-0">
               {/* Division */}
 
@@ -213,13 +246,45 @@ export function AddTour() {
               />
             </div>
 
+            {/* departureLocation and arrivalLocation */}
+            <div className="flex gap-5 sm:space-y-5 md:space-y-0">
+              <FormField
+                control={form.control}
+                name="departureLocation"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Departure Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Departure Location" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="arrivalLocation"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Arrival Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Arrival Location" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Start date and end date */}
             <div className="md:flex gap-5 sm:space-y-5 md:space-y-0">
               <FormField
                 control={form.control}
                 name="startDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col flex-1">
-                    <FormLabel>Date of birth</FormLabel>
+                    <FormLabel>Start Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -305,8 +370,22 @@ export function AddTour() {
               />
             </div>
 
+            {/* Location and Tour Cost */}
             <div className="flex gap-5 sm:space-y-5 md:space-y-0">
-              {/* Tour Cost */}
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Tour Location" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="costFrom"
@@ -320,17 +399,37 @@ export function AddTour() {
                   </FormItem>
                 )}
               />
+            </div>
 
+            {/* minAge and maxGuest */}
+            <div className="flex gap-5 sm:space-y-5 md:space-y-0">
+              <FormField
+                control={form.control}
+                name="minAge"
+                render={({ field }) => (
+                  <FormItem className="flex-1 w-full">
+                    <FormLabel>Minimum Age</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Minimum Required Age"
+                        {...field}
+                        type="number"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               {/* Max Guest */}
               <FormField
                 control={form.control}
                 name="maxGuest"
                 render={({ field }) => (
                   <FormItem className="flex-1 w-full">
-                    <FormLabel>Max Guest</FormLabel>
+                    <FormLabel>Maximum Guest</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Max Guest allowed"
+                        placeholder="Maximum Guest allowed"
                         {...field}
                         type="number"
                       />
@@ -341,8 +440,8 @@ export function AddTour() {
               />
             </div>
 
+            {/* Tour Description and photo upload */}
             <div className="md:flex gap-5">
-              {/* Tour Description */}
               <FormField
                 control={form.control}
                 name="description"
@@ -366,85 +465,178 @@ export function AddTour() {
             <div className="border-t bg-muted"></div>
 
             {/* === Dynamic Fields === */}
-            {/* Includes Fields */}
-            <div className="border p-4 rounded-2xl">
-              <Button
-                type="button"
-                className="my-4"
-                onClick={() => append({ value: "" })}
-              >
-                Add Includes
-              </Button>
-              <div className="sm:grid lg:grid-cols-3 grid-cols-2 gap-5 space-y-2">
-                {fields.map(
-                  (field: { value: string; id: string }, index: number) => (
-                    <div className="flex gap-2 items-center">
-                      <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={`included.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <Input placeholder="Includes..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button
-                        onClick={() => remove(index)}
-                        type="button"
-                        variant="default"
-                        size="icon"
-                      >
-                        <Trash />
-                      </Button>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
+            <>
+              <div className="md:flex justify-center space-y-2 gap-3">
+                {/* Includes Fields */}
+                <div className="flex-1 w-full border p-4 rounded-2xl">
+                  <Button
+                    type="button"
+                    className="my-4"
+                    onClick={() => append({ value: "" })}
+                  >
+                    Add Includes
+                  </Button>
+                  <div className="sm:grid grid-cols-2 gap-5 space-y-2">
+                    {fields.map(
+                      (field: { value: string; id: string }, index: number) => (
+                        <div className="flex gap-2 items-center">
+                          <FormField
+                            key={field.id}
+                            control={form.control}
+                            name={`included.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input placeholder="Includes..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            onClick={() => remove(index)}
+                            type="button"
+                            variant="default"
+                            size="icon"
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
 
-            {/* Excludes Fields */}
-            <div className="border p-4 rounded-2xl">
-              <Button
-                type="button"
-                className="my-4"
-                onClick={() => excludedAppend({ value: "" })}
-              >
-                Add Excludes
-              </Button>
-              <div className="sm:grid lg:grid-cols-3 grid-cols-2 gap-5 space-y-2">
-                {excludedFields.map(
-                  (field: { value: string; id: string }, index: number) => (
-                    <div className="flex gap-2 items-center">
-                      <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={`excluded.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <Input placeholder="Excludes..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button
-                        onClick={() => excludedRemove(index)}
-                        type="button"
-                        variant="default"
-                        size="icon"
-                      >
-                        <Trash />
-                      </Button>
-                    </div>
-                  )
-                )}
+                {/* Excludes Fields */}
+                <div className="flex-1 w-full border p-4 rounded-2xl">
+                  <Button
+                    type="button"
+                    className="my-4"
+                    onClick={() => excludedAppend({ value: "" })}
+                  >
+                    Add Excludes
+                  </Button>
+                  <div className="sm:grid grid-cols-2 gap-5 space-y-2">
+                    {excludedFields.map(
+                      (field: { value: string; id: string }, index: number) => (
+                        <div className="flex gap-2 items-center">
+                          <FormField
+                            key={field.id}
+                            control={form.control}
+                            name={`excluded.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input placeholder="Excludes..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            onClick={() => excludedRemove(index)}
+                            type="button"
+                            variant="default"
+                            size="icon"
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div className="md:flex gap-3">
+                {/* Amenities Fields */}
+                <div className="flex-1 mx-auto border p-4 rounded-2xl">
+                  <Button
+                    type="button"
+                    className="my-4"
+                    onClick={() => amenitiesAppend({ value: "" })}
+                  >
+                    Add Amenities
+                  </Button>
+                  <div className="sm:grid grid-cols-2 gap-5 space-y-2">
+                    {amenitiesFields.map(
+                      (field: { value: string; id: string }, index: number) => (
+                        <div className="flex gap-2 items-center">
+                          <FormField
+                            key={field.id}
+                            control={form.control}
+                            name={`amenities.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="Amenities..."
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            onClick={() => amenitiesRemove(index)}
+                            type="button"
+                            variant="default"
+                            size="icon"
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Tour Plan Fields */}
+                <div className="flex-1 w-full border p-4 rounded-2xl">
+                  <Button
+                    type="button"
+                    className="my-4"
+                    onClick={() => tourPlaneAppend({ value: "" })}
+                  >
+                    Add Tour Plan
+                  </Button>
+                  <div className="sm:grid grid-cols-2 gap-5 space-y-2">
+                    {tourPlaneFields.map(
+                      (field: { value: string; id: string }, index: number) => (
+                        <div className="flex gap-2 items-center">
+                          <FormField
+                            key={field.id}
+                            control={form.control}
+                            name={`tourPlane.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="Add Tour Plan..."
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            onClick={() => tourPlaneRemove(index)}
+                            type="button"
+                            variant="default"
+                            size="icon"
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+
           </form>
         </Form>
       </CardContent>

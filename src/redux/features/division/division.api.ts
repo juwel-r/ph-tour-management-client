@@ -1,4 +1,5 @@
 import { baseApi } from "@/redux/baseApi";
+import type { IDivision, IResponse } from "@/types";
 
 const divisionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,12 +12,12 @@ const divisionApi = baseApi.injectEndpoints({
       invalidatesTags: ["DIVISION"],
     }),
 
-    getDivision: builder.query({
+    getDivision: builder.query<IDivision[], void>({
       query: () => ({
         url: "/division",
         method:"GET"
       }),
-      transformResponse:(response)=> response.data,
+      transformResponse:(response:IResponse<IDivision[]>)=> response.data,
       providesTags: ["DIVISION"],
     }),
 

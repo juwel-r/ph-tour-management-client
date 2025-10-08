@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   Form,
   FormControl,
@@ -17,10 +17,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Password from "@/components/ui/PasswordField";
 import { toast } from "sonner";
-import { useLoginMutation } from "@/redux/features/auth/auth.api";
+import { authApi, useLoginMutation } from "@/redux/features/auth/auth.api";
 import { loginSchema } from "@/utils/zodSchema";
 import Google from "@/assets/icons/Google";
 import env from "@/config/env.config";
+import { useAppDispatch } from "@/redux/hook";
 
 export function LoginForm({
   className,
@@ -28,6 +29,10 @@ export function LoginForm({
 }: React.HTMLAttributes<HTMLDivElement>) {
   const navigate = useNavigate();
   const [login] = useLoginMutation();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+
+  console.log(location.state);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -46,8 +51,10 @@ export function LoginForm({
     try {
       const result = await login(credential).unwrap();
       toast.success(result.message);
-      console.log(result);
-      navigate("/")
+
+      dispatch(authApi.util.invalidateTags(["USER"])); //if i don't add this, in checkAuthorization instantly data or data.role is show undefined so again come back in login so when i invalidateTags then again refetch user so then show data
+
+      navigate(location.state || "/");
     } catch (error: any) {
       console.log(error);
 
@@ -121,7 +128,11 @@ export function LoginForm({
             Or continue with
           </span>
         </div>
-        <Button  onClick={()=>window.open(`${env.baseUrl}/auth/google`)} variant="outline" className="w-full">
+        <Button
+          onClick={() => window.open(`${env.baseUrl}/auth/google`)}
+          variant="outline"
+          className="w-full"
+        >
           <Google />
           Login with Google
         </Button>
