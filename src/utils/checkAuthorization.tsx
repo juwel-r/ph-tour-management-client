@@ -7,11 +7,12 @@ export const checkAuthorization = (Component: ComponentType, role?: TRole) => {
   return function AuthWrapper() {
     const { data, isLoading } = useUserInfoQuery();
 
+    console.log(data);
     if (!isLoading && !data?.data?.role) {
       return <Navigate to="/login"/>;
     }
 
-    if(!isLoading && role !== data?.data?.role ){
+    if(!isLoading && role && role !== data?.data?.role ){
      return <Navigate to="/unauthorize"/> 
     }
     return <Component />;

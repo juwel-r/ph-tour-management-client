@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
+import { useCreateBookingMutation } from "@/redux/features/booking/booking.api";
 import { useGetAllTourQuery } from "@/redux/features/tour/tour.api";
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { toast } from "sonner";
 
 export default function Booking() {
   const [guestCount, setGuestCount] = useState(1);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  console.log(totalAmount);
-
   const { id } = useParams();
   const { data, isLoading, isError } = useGetAllTourQuery({ _id: id });
-  // const [createBooking] = useCreateBookingMutation();
+  const [createBooking] = useCreateBookingMutation();
 
   const tourData = data?.[0];
 
@@ -49,6 +50,27 @@ export default function Booking() {
   //     console.log(err);
   //   }
   // };
+
+
+  const handleBooking = async()=>{
+    let bookingData;
+    if(tourData){
+      bookingData ={
+        tour:tourData._id,
+        guestCount
+      }
+    }
+
+    try {
+      const res = await createBooking(bookingData).unwrap();
+      toast.success(res.message)
+      console.log(res.data);
+      window.open(res.data.paymentURL)
+    } catch (error:any) {
+      console.log(error);
+      toast.error(error.data.message || error.data)
+    }
+  }
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -167,7 +189,7 @@ export default function Booking() {
                 </div>
 
                 <Button 
-                // onClick={handleBooking} 
+                onClick={handleBooking} 
                 className="w-full" size="lg">
                   Book Now
                 </Button>
