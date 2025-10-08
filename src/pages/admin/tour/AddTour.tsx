@@ -44,7 +44,7 @@ import { addTourSchema } from "@/utils/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
-import { CalendarIcon, Trash, } from "lucide-react";
+import { CalendarIcon, icons, Trash, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
   useFieldArray,
@@ -85,9 +85,7 @@ export function AddTour() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray<
-    z.infer<typeof addTourSchema>
-  >({
+  const { fields, append, remove } = useFieldArray<z.infer<typeof addTourSchema>>({
     control: form.control,
     name: "included",
   });
