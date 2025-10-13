@@ -13,13 +13,14 @@ const tourApi = baseApi.injectEndpoints({
       invalidatesTags: ["TOUR-TYPE"],
     }),
 
-    getTourType: builder.query<ITourType[], void>({
-      query: () => ({
+    getTourType: builder.query<IResponse<ITourType[]>, unknown>({
+      query: (query) => ({
         url: "/tour/tour-type",
         method: "GET",
+        params:query
       }),
       providesTags: ["TOUR-TYPE"],
-      transformResponse: (response: IResponse<ITourType[]>) => response.data,
+      // transformResponse: (response: IResponse<ITourType[]>) => response.data,
     }),
 
     deleteTourType: builder.mutation<IResponse<null>, string>({
