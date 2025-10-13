@@ -14,7 +14,7 @@ import { useSearchParams } from "react-router";
 
 export default function TourFilters() {
   const { data: divisionData, isLoading: divisionLoading } = useGetDivisionQuery();
-  const { data: tourTypeData, isLoading: tourTypeLoading } = useGetTourTypeQuery();
+  const { data: tourTypeData, isLoading: tourTypeLoading } = useGetTourTypeQuery({ limit: 1000,fields:"name,_id" });
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -48,6 +48,7 @@ export default function TourFilters() {
           Clear
         </Button>
       </div>
+
       <Select
         disabled={divisionLoading}
         value={selectedDivision || ""}
@@ -60,8 +61,8 @@ export default function TourFilters() {
           <SelectGroup>
             <SelectLabel>Division</SelectLabel>
             {!divisionLoading &&
-              divisionData!.length &&
-              divisionData!.map((division) => (
+              divisionData?.length &&
+              divisionData?.map((division) => (
                 <SelectItem key={division._id} value={division._id}>
                   {division.name}
                 </SelectItem>
@@ -82,8 +83,8 @@ export default function TourFilters() {
           <SelectGroup>
             <SelectLabel>Tour Type</SelectLabel>
             {!tourTypeLoading &&
-              tourTypeData!.length &&
-              tourTypeData!.map((tourType) => (
+              tourTypeData?.data.length &&
+              tourTypeData?.data.map((tourType) => (
                 <SelectItem key={tourType._id} value={tourType._id}>
                   {tourType.name}
                 </SelectItem>

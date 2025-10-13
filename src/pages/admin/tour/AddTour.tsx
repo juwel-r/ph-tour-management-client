@@ -44,7 +44,7 @@ import { addTourSchema } from "@/utils/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { format, formatISO } from "date-fns";
-import { CalendarIcon, icons, Trash, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash } from "lucide-react";
 import { useState } from "react";
 import {
   useFieldArray,
@@ -59,7 +59,7 @@ export function AddTour() {
   const { data: divisionData, isLoading: divisionLoading } =
     useGetDivisionQuery(undefined);
   const { data: tourTypeData, isLoading: tourTypeLoading } =
-    useGetTourTypeQuery();
+    useGetTourTypeQuery({ limit: 1000,fields:"name,_id" });
   const [images, setImages] = useState<(File | FileMetadata)[] | []>([]);
   const [addTour, { isLoading }] = useAddTourMutation();
 
@@ -85,7 +85,9 @@ export function AddTour() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray<z.infer<typeof addTourSchema>>({
+  const { fields, append, remove } = useFieldArray<
+    z.infer<typeof addTourSchema>
+  >({
     control: form.control,
     name: "included",
   });
@@ -143,7 +145,7 @@ export function AddTour() {
       toast.success(result.message);
 
       form.reset();
-      setImages([])
+      setImages([]);
     } catch (error: any) {
       toast.error(error?.data?.message || error.data);
       console.log(error);
@@ -233,7 +235,7 @@ export function AddTour() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {tourTypeData?.map((item) => (
+                        {tourTypeData?.data?.map((item) => (
                           <SelectItem key={item._id} value={item._id}>
                             {item.name}
                           </SelectItem>
@@ -636,7 +638,6 @@ export function AddTour() {
                 </div>
               </div>
             </>
-
           </form>
         </Form>
       </CardContent>

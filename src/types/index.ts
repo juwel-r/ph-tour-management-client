@@ -1,18 +1,29 @@
 import type { ComponentType } from "react";
 
-export type {IRegister,ILogin,ILoginResponse,ISendOtp,IVerifyOtp,IUser,} from "./auth.types";
+export type {
+  IRegister,
+  ILogin,
+  ILoginResponse,
+  ISendOtp,
+  IVerifyOtp,
+  IUser,
+} from "./auth.types";
 export type { IDivision, IDivisionFormData } from "./division.types";
 export type { ITourType } from "./tourType.types";
-export type { ITour } from "./tour.types";
-
+export type { ITour } from "./tours.types";
 
 export interface IResponse<T> {
   statusCode: number;
   success: boolean;
   message: string;
   data: T;
+  meta?: {
+    page: number;
+    limit: number;
+    totalPage: number;
+    total: number;
+  };
 }
-
 
 export interface Meta {
   page: number;

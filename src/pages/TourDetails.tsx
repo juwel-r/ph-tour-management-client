@@ -14,6 +14,7 @@ export default function TourDetails() {
   //     },
   //     {
   //       skip: !data,
+  //ekhane data(Tour data jotokhon undefined totokhon division api call hobe na, skip hoye jabe)
   //     }
   //   );
 
@@ -27,6 +28,8 @@ export default function TourDetails() {
 
   return (
     <div className="container mx-auto p-6">
+      {
+  !isLoading &&  !tourData? <h1 className="text-center text-muted-foreground text-2xl font-bold">No Data FOund</h1>:(<>
       {/* Header */}
       <div className="flex justify-between items-center  mb-8">
         <div>
@@ -44,7 +47,8 @@ export default function TourDetails() {
         </div>
       </div>
 
-      {/* Images */}
+
+        {/* Images */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {tourData?.images?.map((image, index) => (
           <img
@@ -85,7 +89,7 @@ export default function TourDetails() {
               <strong>Division:</strong> {divisionData?.[0]?.name}
             </p> */}
             <p>
-              <strong>Tour Type:</strong> {tourData?.tourType}
+              <strong>Tour Type:</strong> {tourData?.tourType?.name}
             </p>
             <p>
               <strong>Min Age:</strong> {tourData?.minAge} years
@@ -151,7 +155,10 @@ export default function TourDetails() {
             </li>
           ))}
         </ol>
-      </div>
+      </div></>)
+}
+
+
     </div>
   );
 }
